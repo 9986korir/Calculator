@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="1dp">
 
         <!-- Display -->
 
@@ -28,6 +28,8 @@
         <GridLayout
             android:layout_width="match_parent"
             android:layout_height="377dp"
+            android:layout_weight="1"
+            android:background="@color/black"
             android:layout_marginTop="16dp"
             android:columnCount="4"
             android:orientation="horizontal"

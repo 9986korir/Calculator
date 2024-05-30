@@ -41,11 +41,11 @@ class MainViewModel : ViewModel() {
         when (button) {
             BUTTON_AC -> clear()
             BUTTON_BACKSPACE -> backspace()
-            BUTTON_PERCENTAGE -> setOperation("%")
-            BUTTON_DIVIDE -> setOperation("/")
-            BUTTON_MULTIPLY -> setOperation("*")
-            BUTTON_MINUS -> setOperation("-")
-            BUTTON_PLUS -> setOperation("+")
+            BUTTON_PERCENTAGE -> setOperation(BUTTON_PERCENTAGE)
+            BUTTON_DIVIDE -> setOperation(BUTTON_DIVIDE)
+            BUTTON_MULTIPLY -> setOperation(BUTTON_MULTIPLY)
+            BUTTON_MINUS -> setOperation(BUTTON_MINUS)
+            BUTTON_PLUS -> setOperation(BUTTON_PLUS)
             BUTTON_EQUALS -> calculate()
             BUTTON_HISTORY -> showHistory()
             else -> numberClick(button)
@@ -54,7 +54,7 @@ class MainViewModel : ViewModel() {
 
     private fun numberClick(number: String) {
         currentNumber += number
-        _displayText.value = currentNumber
+        updateDisplay()
     }
 
     private fun setOperation(op: String) {
@@ -62,25 +62,27 @@ class MainViewModel : ViewModel() {
             firstNumber = currentNumber
             currentNumber = ""
             operation = op
-            _displayText.value = ""
+            updateDisplay()
         }
     }
 
     private fun calculate() {
         if (currentNumber.isNotEmpty() && firstNumber.isNotEmpty()) {
             val result = when (operation) {
-                "+" -> firstNumber.toDouble() + currentNumber.toDouble()
-                "-" -> firstNumber.toDouble() - currentNumber.toDouble()
-                "*" -> firstNumber.toDouble() * currentNumber.toDouble()
-                "/" -> firstNumber.toDouble() / currentNumber.toDouble()
-                "%" -> firstNumber.toDouble() % currentNumber.toDouble()
+                BUTTON_PLUS -> firstNumber.toDouble() + currentNumber.toDouble()
+                BUTTON_MINUS -> firstNumber.toDouble() - currentNumber.toDouble()
+                BUTTON_MULTIPLY -> firstNumber.toDouble() * currentNumber.toDouble()
+                BUTTON_DIVIDE -> firstNumber.toDouble() / currentNumber.toDouble()
+                BUTTON_PERCENTAGE -> firstNumber.toDouble() % currentNumber.toDouble()
                 else -> 0.0
             }
 
-            history.add("$firstNumber $operation $currentNumber = $result")
-            _displayText.value = result.toString()
+            val computation = "$firstNumber $operation $currentNumber = $result"
+            history.add(computation)
+            _displayText.value = computation
             firstNumber = result.toString()
             currentNumber = ""
+            operation = ""
         }
     }
 
@@ -94,12 +96,24 @@ class MainViewModel : ViewModel() {
     private fun backspace() {
         if (currentNumber.isNotEmpty()) {
             currentNumber = currentNumber.dropLast(1)
-            _displayText.value = currentNumber
+            if (currentNumber.isEmpty()) {
+                _displayText.value = firstNumber + " " + operation
+            } else {
+                updateDisplay()
+            }
         }
     }
 
     private fun showHistory() {
         val historyText = history.joinToString("\n")
         _displayText.value = historyText
+    }
+
+    private fun updateDisplay() {
+        _displayText.value = if (operation.isEmpty()) {
+            currentNumber
+        } else {
+            "$firstNumber $operation $currentNumber"
+        }
     }
 }
